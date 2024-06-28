@@ -1,39 +1,53 @@
-import React from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { editTask } from "./Redux/todoSlice";
+import { filterDone, filterUndone, filterAll } from "./Redux/todoSlice";
+import AddTodo from "./Components/AddTodo";
+import TodoList from "./Components/TodoList";
 
 const App = () => {
-  const { todos } = useSelector((state) => state.todo);
+  const { todos, filter } = useSelector((state) => state.todo);
   const dispatch = useDispatch();
+  const [upTask, setUpTask] = useState("");
+
+  let doneTodos = todos.filter((el) => el.isDone === true);
+  let undoneTodos = todos.filter((el) => el.isDone === false);
+
   return (
     <div>
-      {todos.map((el) => (
-        <>
-          {el.isEdited ? (
-            <input type="text" defaultValue={el.task} />
-          ) : (
-            <p style={{ color: el.isDone ? "green" : "red" }}> {el.task} </p>
-          )}
+      <AddTodo />
+      <div>
+        <button
+          onClick={() => {
+            dispatch(filterAll());
+          }}
+        >
+          All
+        </button>
+        <button
+          onClick={() => {
+            dispatch(filterDone());
+          }}
+        >
+          Done
+        </button>
+        <button
+          onClick={() => {
+            dispatch(filterUndone());
+          }}
+        >
+          Undone
+        </button>
+      </div>
 
-          {el.isEdited ? (
-            <button
-              onClick={() => {
-                dispatch(editTask(el.id));
-              }}
-            >
-              Save changes
-            </button>
-          ) : (
-            <button
-              onClick={() => {
-                dispatch(editTask(el.id));
-              }}
-            >
-              Edit
-            </button>
-          )}
-        </>
-      ))}
+      <TodoList
+        todos={
+          filter === "Done"
+            ? doneTodos
+            : filter === "UnDone"
+            ? undoneTodos
+            : todos
+        }
+      />
     </div>
   );
 };
